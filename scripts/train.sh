@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Train one arm of the paper:  bash scripts/train.sh <arm>
-# Arms: vanilla faith faith_a025 faith_a075 faith_a100 random length repetition additive
+# Arms: vanilla faith faith_a025 faith_a075 faith_a100 random length additive
 set -euo pipefail
 
-ARM=${1:?usage: train.sh <vanilla|faith|faith_a025|faith_a075|faith_a100|random|length|repetition|additive>}
+ARM=${1:?usage: train.sh <vanilla|faith|faith_a025|faith_a075|faith_a100|random|length|additive>}
 REPO=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck disable=SC1090
 source "${FTGRPO_CONFIG:-$REPO/configs/full_ft.env}"
@@ -17,7 +17,7 @@ case "$ARM" in
     faith_a100) ADV_ESTIMATOR=tiebreak_faith_only_for_ties; USES_PROBE=1; export FAITH_TIE_ALPHA=1.0 ;;
     random)     ADV_ESTIMATOR=tiebreak_random_for_ties; export FAITH_RANDOM_SEED=${FAITH_RANDOM_SEED:-42} ;;
     length)     ADV_ESTIMATOR=tiebreak_neglength_for_ties ;;
-    repetition) ADV_ESTIMATOR=tiebreak_negrepetition_for_ties ;;
+    repetition) echo "The repetition control estimator is not included in this release yet." >&2; exit 2 ;;
     additive)   ADV_ESTIMATOR=grpo; USES_PROBE=1; export FAITH_REWARD_ALPHA=${FAITH_REWARD_ALPHA:-0.7} ;;
     *) echo "unknown arm: $ARM" >&2; exit 2 ;;
 esac

@@ -1,4 +1,4 @@
-# Breaking the Loop with Good Attention
+# Break the Loop with Good Attention
 
 Code for **FT-GRPO**, a tie-constrained variant of GRPO for vision-language models.
 
@@ -13,7 +13,9 @@ and zero-sum, so a probe score can never move a rollout past one with a higher r
 |---|---|
 | Training, probe, evaluation and analysis code | Included |
 | verl patch chain | Applies cleanly to the pinned commit |
-| Frozen probe, split manifest, per-arm results | Not yet included |
+| Out-of-domain summary for all nine arms | Included in `results/` |
+| Frozen probe and split manifest | Not yet included |
+| Repetition control estimator | Not yet included, so `train.sh repetition` exits with an error |
 | Exact environment lockfile | Not yet included; `requirements.txt` lists core versions |
 | Trained checkpoints | Not included |
 | Full training run from this repository | Not yet run |
@@ -63,8 +65,9 @@ bash scripts/train.sh faith
 | `faith_a025`, `faith_a075`, `faith_a100` | FT-GRPO with α = 0.25, 0.75, 1.0 |
 | `random` | Seeded random rank |
 | `length` | Shorter responses first |
-| `repetition` | Less repetitive responses first |
 | `additive` | Vanilla GRPO on a reward blended with the probe score (λ = 0.7) |
+
+The paper's repetition control is not runnable from this release yet.
 
 All settings are in `configs/full_ft.env`. Use `SEED=123` for the replication seed.
 
@@ -75,8 +78,9 @@ GPU=0 bash scripts/evaluate.sh vanilla 150 all
 GPU=1 bash scripts/evaluate.sh faith 150 all
 ```
 
-The evaluation step is chosen from the vanilla arm only, as the first checkpoint where the three-point moving
-average of validation accuracy stops rising by more than 1%. In the paper that step is 150.
+The evaluation step is chosen from the vanilla arm only, as the first checkpoint after the last relative
+improvement above 1% in the three-point moving average of validation accuracy. In the paper that step is 150.
+Out-of-domain evaluation uses `eval_ood_vllm.py`'s default prompt, the one used for the saved results.
 
 ```bash
 python scripts/eval/compute_sstar.py results/eval vanilla
@@ -93,16 +97,26 @@ python scripts/eval/compute_sstar.py results/eval vanilla
 
 ## Probe
 
-The probe uses 1,152 attention features (36 layers × 32 heads). To collect features and fit a new probe:
+The probe uses 1,152 attention features (36 layers × 32 heads) from eight rollouts per question on 6,000
+questions: the 4,000 training prompts plus 2,000 extra math prompts.
 
 ```bash
+python scripts/data/prep_math_extra_v3.py \
+  --annotations data/annotations/vlaa_thinking_annotations.json \
+  --manifest data/vlaa_subset_5400/split_manifest.json \
+  --img-root data/vlaa_thinking/images_extracted --out-dir data/vlaa_math_extra --n 2000
+
+# Repeat for digit, mcq, math and iou, and for data/vlaa_math_extra/train.parquet.
 python scripts/probe/collect_probe_data_vllm.py --model Qwen/Qwen3-VL-8B-Thinking \
-  --parquet data/vlaa_subset_5400/train.parquet --filter-verifier mcq --out outputs/probe/mcq.npz --no-batch
-python verl_faith/merge_probe_shards.py --pattern 'outputs/probe/*.npz' --out outputs/probe/merged.npz
-python verl_faith/train_probe.py --features outputs/probe/merged.npz --label-key y_lenient --out outputs/probe/probe.pkl
+  --parquet data/vlaa_subset_5400/train.parquet --filter-verifier mcq \
+  --temperatures 0.7,1.0,1.0,1.0,1.0,1.0,1.3,1.3 --no-batch --out outputs/probe/mcq.npz
+
+python verl_faith/merge_probe_shards.py --pattern 'outputs/probe/*.npz' --out outputs/probe_merged.npz
+python verl_faith/train_probe.py --features outputs/probe_merged.npz --label-key y_lenient \
+  --cap-per-class 474 --out outputs/probe.pkl
 ```
 
-Repeat collection for each verifier. A pickle can run code when loaded, so only load probe files you trust.
+A pickle can run code when loaded, so only load probe files you trust.
 
 ## License
 

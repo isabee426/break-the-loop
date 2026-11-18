@@ -1,0 +1,47 @@
+[
+  {
+    "set": "ALL",
+    "n": 600,
+    "pos": 372,
+    "neg": 228,
+    "faith_mean_correct": 0.7827,
+    "faith_mean_wrong": 0.6297,
+    "auc": 0.7401
+  },
+  {
+    "set": "digit",
+    "n": 150,
+    "pos": 85,
+    "neg": 65,
+    "faith_mean_correct": 0.8623,
+    "faith_mean_wrong": 0.7471,
+    "auc": 0.7802
+  },
+  {
+    "set": "iou",
+    "n": 150,
+    "pos": 76,
+    "neg": 74,
+    "faith_mean_correct": 0.8362,
+    "faith_mean_wrong": 0.6403,
+    "auc": 0.833
+  },
+  {
+    "set": "math",
+    "n": 150,
+    "pos": 87,
+    "neg": 63,
+    "faith_mean_correct": 0.7688,
+    "faith_mean_wrong": 0.5287,
+    "auc": 0.8024
+  },
+  {
+    "set": "mcq",
+    "n": 150,
+    "pos": 124,
+    "neg": 26,
+    "faith_mean_correct": 0.7051,
+    "faith_mean_wrong": 0.5503,
+    "auc": 0.7429
+  }
+]
