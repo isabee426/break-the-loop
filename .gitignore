@@ -1,0 +1,11 @@
+data/
+outputs/
+artifacts/*
+!artifacts/README.md
+__pycache__/
+*.pyc
+*.pkl
+*.safetensors
+*.log
+.env
+.DS_Store
