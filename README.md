@@ -19,7 +19,6 @@ and zero-sum, so a probe score can never move a rollout past one with a higher r
 | Repetition control estimator | Not yet included, so `train.sh repetition` exits with an error |
 | Exact environment lockfile | Not yet included; `requirements.txt` lists core versions |
 | Trained checkpoints | Not included |
-| Full training run from this repository | Not yet run |
 
 ## Setup
 
