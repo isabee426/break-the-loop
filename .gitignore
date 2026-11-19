@@ -2,6 +2,7 @@
 /outputs/
 artifacts/*
 !artifacts/README.md
+!artifacts/split_manifest.json
 __pycache__/
 *.pyc
 *.pkl

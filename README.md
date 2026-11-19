@@ -14,7 +14,8 @@ and zero-sum, so a probe score can never move a rollout past one with a higher r
 | Training, probe, evaluation and analysis code | Included |
 | verl patch chain | Applies cleanly to the pinned commit |
 | Out-of-domain summary for all nine arms | Included in `results/` |
-| Frozen probe and split manifest | Not yet included |
+| Train/val/test split manifest (seed 42) | Included in `artifacts/split_manifest.json` |
+| Frozen probe | Not yet included |
 | Repetition control estimator | Not yet included, so `train.sh repetition` exits with an error |
 | Exact environment lockfile | Not yet included; `requirements.txt` lists core versions |
 | Trained checkpoints | Not included |
@@ -103,7 +104,7 @@ questions: the 4,000 training prompts plus 2,000 extra math prompts.
 ```bash
 python scripts/data/prep_math_extra_v3.py \
   --annotations data/annotations/vlaa_thinking_annotations.json \
-  --manifest data/vlaa_subset_5400/split_manifest.json \
+  --manifest artifacts/split_manifest.json \
   --img-root data/vlaa_thinking/images_extracted --out-dir data/vlaa_math_extra --n 2000
 
 # Repeat for digit, mcq, math and iou, and for data/vlaa_math_extra/train.parquet.
